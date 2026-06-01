@@ -1,28 +1,43 @@
-# CUPS Docker Image
+# CUPS Docker Image with brlaser (Brother HL-1200 series)
 
-Forked from ydkn/docker-cups
+CUPS Docker image based on [ydkn/cups](https://hub.docker.com/r/ydkn/cups) (Debian)
+with the **brlaser** driver for **Brother HL-1200 / HL-1210W / HL-1212W** printers.
 
-## Architectures
+The Brother proprietary driver for this series is 32-bit (i386) and its LPR filter
+fails silently on 64-bit systems without `libc6:i386` — CUPS marks the job as
+"completed" but nothing is printed. **brlaser** is a free, native 64-bit driver that
+makes printing on this series reliable.
 
-- amd64
-- arm32v7
-- arm64v8
+## Build
+
+```bash
+docker build -t cups-brlaser .
+```
 
 ## Usage
 
-### Start the container
+The printer is USB, so the USB device must be passed to the container:
 
 ```bash
-docker run -d --restart always -p 631:631 -v $(pwd):/etc/cups ydkn/cups:latest
+docker run -d --restart always \
+  --name cups-brlaser \
+  -p 631:631 \
+  -e ADMIN_PASSWORD=mySecretPassword \
+  --device /dev/usb/lp0 \
+  -v $(pwd):/etc/cups \
+  cups-brlaser
 ```
 
-### Configuration
+If `/dev/usb/lp0` does not exist, pass the whole USB bus with `--device /dev/bus/usb`.
 
-Login in to CUPS web interface on port 631 (e.g. https://localhost:631) and configure CUPS to your needs.
-Default credentials: admin / admin
+## Configuration
 
-To change the admin password set the environment variable _ADMIN_PASSWORD_ to your password.
+Open the CUPS web interface on port 631 (e.g. https://localhost:631) and add the printer.
+Default credentials: `admin` / `admin` (set `ADMIN_PASSWORD` to change it).
 
-```bash
-docker run -d --restart always -p 631:631 -v $(pwd):/etc/cups -e ADMIN_PASSWORD=mySecretPassword ydkn/cups:latest
-```
+Under **Make/Model**, select **`Brother HL-1200 series, using brlaser`** (or `HL-1210W`).
+Do **not** pick a proprietary "Brother ... CUPS" PPD or a "Generic" one.
+
+## License
+
+GPL-3.0 — see [LICENSE](LICENSE).
