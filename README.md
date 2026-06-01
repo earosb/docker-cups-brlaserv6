@@ -35,7 +35,7 @@ If `/dev/usb/lp0` does not exist, pass the whole USB bus with `--device /dev/bus
 Open the CUPS web interface on port 631 (e.g. https://localhost:631) and add the printer.
 Default credentials: `admin` / `admin` (set `ADMIN_PASSWORD` to change it).
 
-Under **Make/Model**, select **`Brother HL-1200 series, using brlaser`** (or `HL-1210W`).
+Under **Make/Model**, select **`Brother HL-1200 series, using brlaser v6`**.
 Do **not** pick a proprietary "Brother ... CUPS" PPD or a "Generic" one.
 
 ## License

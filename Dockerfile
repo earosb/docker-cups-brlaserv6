@@ -19,10 +19,20 @@ RUN set -eux; \
     sed -i 's|deb.debian.org|archive.debian.org|g; s|security.debian.org|archive.debian.org|g; /buster-updates/d' /etc/apt/sources.list; \
     apt-get -o Acquire::Check-Valid-Until=false update; \
     apt-get install -y --no-install-recommends \
-        printer-driver-brlaser \
         ghostscript \
         cups-filters \
-        usbutils; \
+        usbutils \
+        build-essential cmake git libcups2-dev libcupsimage2-dev; \
+    # brlaser v6 desde fuente: Debian buster solo trae v4, que no incluye el PPD
+    # del HL-1200 series. v6 si lo trae -> "Brother HL-1200 series, using brlaser v6".
+    # El CMakeLists usa cups-config, asi que instala el filtro y el .drv en las rutas
+    # correctas de esta base (CUPS_SERVER_BIN/filter y CUPS_DATA_DIR/drv).
+    git clone --depth 1 --branch v6 https://github.com/pdewacht/brlaser.git /tmp/brlaser; \
+    cd /tmp/brlaser; cmake .; make; make install; \
+    cd /; rm -rf /tmp/brlaser; \
+    # quitar el toolchain de build (los runtime libs quedan instalados)
+    apt-get purge -y build-essential cmake git libcups2-dev libcupsimage2-dev; \
+    apt-get autoremove -y; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*
 
